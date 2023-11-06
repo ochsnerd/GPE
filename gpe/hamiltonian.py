@@ -4,7 +4,7 @@ import numpy as np
 
 from scipy.sparse.linalg import LinearOperator
 
-from .basis_function import WaveFunction, Density
+from .wave_function import WaveFunction, Density
 
 
 class Hamiltonian(LinearOperator):
