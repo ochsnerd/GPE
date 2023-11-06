@@ -13,6 +13,7 @@ from .basis_function import WaveFunction, Density
 
 N = 5
 
+
 class Hamiltonian(LinearOperator):
     N: int
     ops: list[Callable[[WaveFunction], WaveFunction]]
@@ -30,7 +31,10 @@ class Hamiltonian(LinearOperator):
         return res
 
     def _matvec(self, x: WaveFunction) -> WaveFunction:
-        return sum((op(x) for op in self.ops), start=WaveFunction(np.zeros(self.N, dtype=np.cfloat)))
+        return sum(
+            (op(x) for op in self.ops),
+            start=WaveFunction(np.zeros(self.N, dtype=np.cfloat)),
+        )
 
 
 class Kinetic(Hamiltonian):

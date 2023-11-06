@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 
+
 class WaveFunction(np.ndarray):
     def __new__(cls, input_array: np.ndarray):
         # see https://numpy.org/doc/stable/user/basics.subclassing.html
@@ -19,7 +20,6 @@ class Density(np.ndarray):
         # see https://numpy.org/doc/stable/user/basics.subclassing.html
         assert input_array.dtype == float
         return np.asarray(input_array).view(cls)
-
 
 
 # Not sure if this is needed, just use implicitly PaneWave?
