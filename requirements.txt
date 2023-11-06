@@ -1,2 +1,5 @@
 numpy
 scipy
+
+pre-commit
+pytest
