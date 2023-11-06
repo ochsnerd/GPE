@@ -8,20 +8,18 @@ import numpy.typing as npt
 
 from scipy.sparse.linalg import LinearOperator
 
-from basis_function import WaveFunction, Density
+from .basis_function import WaveFunction, Density
 
 
 N = 5
 
 class Hamiltonian(LinearOperator):
-    dtype: npt.DTypeLike = np.cdouble
     N: int
-    shape: tuple[int, int]
     ops: list[Callable[[WaveFunction], WaveFunction]]
 
     def __init__(self, N: int):
+        super().__init__(dtype=np.cfloat, shape=(N, N))
         self.N = N
-        self.shape = (N, N)
         self.ops = []
 
     def __add__(self, other: Hamiltonian) -> Hamiltonian:
