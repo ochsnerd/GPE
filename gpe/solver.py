@@ -2,7 +2,7 @@ import numpy as np
 from scipy.sparse.linalg import eigsh
 
 from .hamiltonian import Hamiltonian, Kinetic, Potential, BosonBosonCoupling
-from .basis_function import WaveFunction, Density
+from .wave_function import WaveFunction, Density
 
 
 N = 5
