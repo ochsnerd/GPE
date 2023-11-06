@@ -11,15 +11,17 @@ class M(Hamiltonian):
         assert len(mat.shape) == 2 and mat.shape[0] == mat.shape[1]
         super().__init__(mat.shape[0])
         self.mat = mat
-        self.ops += [lambda x: self.mat @ x]
+
+    def _matvec(self, x):
+        return self.mat @ x
 
 
 def ev_equation_residual(A, eigenvalue, eigenvector):
     return np.linalg.norm(A @ eigenvector - eigenvalue * eigenvector)
 
 
-def check_eigval_eigvec(m, tol=1e-12):
-    assert ev_equation_residual(m, *eigsh(M(m), k=1)) < tol
+def check_eigenvalue_equation_holds(matrix, operator, tol=1e-12):
+    assert ev_equation_residual(matrix, *eigsh(operator, k=1)) < tol
 
 
 def testEVP():
@@ -32,4 +34,11 @@ def testEVP():
     ]
 
     for m in matrices:
-        check_eigval_eigvec(m)
+        check_eigenvalue_equation_holds(m, M(m))
+
+
+def testHamiltonian_addition():
+    m1 = np.array([[0, 0, 1], [0, 0, 0], [0, 0, 0]])
+    m2 = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
+    m3 = np.array([[0, 0, 0], [0, 0, 0], [0, 0, 1]])
+    check_eigenvalue_equation_holds(m1 + m2 + m3, M(m1) + M(m2) + M(m3))

@@ -16,25 +16,10 @@ N = 5
 
 class Hamiltonian(LinearOperator):
     N: int
-    ops: list[Callable[[WaveFunction], WaveFunction]]
 
     def __init__(self, N: int):
         super().__init__(dtype=np.cfloat, shape=(N, N))
         self.N = N
-        self.ops = []
-
-    def __add__(self, other: Hamiltonian) -> Hamiltonian:
-        # not sure if this is actually needed
-        assert self.shape == other.shape
-        res = Hamiltonian(self.N)
-        res.ops += self.ops + other.ops
-        return res
-
-    def _matvec(self, x: WaveFunction) -> WaveFunction:
-        return sum(
-            (op(x) for op in self.ops),
-            start=WaveFunction(np.zeros(self.N, dtype=np.cfloat)),
-        )
 
 
 class Kinetic(Hamiltonian):
