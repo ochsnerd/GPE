@@ -1,7 +1,8 @@
 import numpy as np
 from scipy.sparse.linalg import eigsh
+from gpe.grid import Grid
 
-from gpe.hamiltonian import Hamiltonian
+from gpe.hamiltonian import Hamiltonian, Kinetic
 
 
 class M(Hamiltonian):
@@ -9,7 +10,7 @@ class M(Hamiltonian):
 
     def __init__(self, mat):
         assert len(mat.shape) == 2 and mat.shape[0] == mat.shape[1]
-        super().__init__(mat.shape[0])
+        super().__init__(Grid(1, mat.shape[0]))
         self.mat = mat
 
     def _matvec(self, x):
@@ -42,3 +43,11 @@ def testHamiltonian_addition():
     m2 = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
     m3 = np.array([[0, 0, 0], [0, 0, 0], [0, 0, 1]])
     check_eigenvalue_equation_holds(m1 + m2 + m3, M(m1) + M(m2) + M(m3))
+
+
+def testKinetic():
+    g = Grid(3, 4)  # -> dx = 1
+    # which='LM' and sigma=0 gives us the smallest eigenvalue(s)
+    λ, _ = eigsh(Kinetic(g), k=1, which="LM", sigma=0)
+    # λ, _ = eigsh(Kinetic(g), k=1, which="SM")
+    assert np.abs(λ[0] - 0.25 * (3 - np.sqrt(5))) < 1e-12
