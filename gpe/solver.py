@@ -12,6 +12,8 @@ BBC = BosonBosonCoupling
 
 
 def solve_evp(H: Hamiltonian) -> tuple[float, WaveFunction]:
+    # this uses a Lanczos-like algorithm, so it gives us the k=1 smallest or largest eigenvalue
+    # TODO: How to ensure that we get the smallest?
     λ, ψ = eigsh(Hamiltonian, k=1)
     return λ, WaveFunction(ψ)
 
@@ -22,7 +24,7 @@ def update(ρ_in: Density) -> tuple[complex, Density]:
 
     λ, ψ = solve_evp(Hₙ)
 
-    ρ_out = ψ.compute_ρ()
+    ρ_out = ψ.to_ρ()
 
     ρ_new = Density(ρ_in + d * (ρ_out - ρ_in))
 
