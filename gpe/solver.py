@@ -65,3 +65,21 @@ class Solver:
         λs, ψs = eigsh(H, k=1, which="SM", v0=self.ψ_prev)
         self.ψ_prev = WaveFunction.normalize(ψs[:, 0], self.grid.dx)
         return λs[0], self.ψ_prev
+
+
+class GrossPitaevskiiSolver(Solver):
+    K: Kinetic
+    V: Potential
+    BBC: BosonBosonCoupling
+
+    def __init__(
+        self, potential: Callable[[float], float], C: float, grid: Grid, d: float = 0.01
+    ):
+        super().__init__(self._update_Hamiltonian, grid, d)
+        self.K = Kinetic(grid)
+        self.V = Potential(potential, grid)
+        self.BBC = BosonBosonCoupling(Density(np.zeros(grid.N)), C, grid)
+
+    def _update_Hamiltonian(self, ρ: Density) -> Hamiltonian:
+        self.BBC = BosonBosonCoupling(ρ, self.BBC.C, self.grid)
+        return self.K + self.V + self.BBC
