@@ -1,45 +1,67 @@
+from typing import Callable
 import numpy as np
 from scipy.sparse.linalg import eigsh
 
+from .grid import Grid
 from .hamiltonian import Hamiltonian, Kinetic, Potential, BosonBosonCoupling
 from .wave_function import WaveFunction, Density
 
 
-N = 5
-Δ = Kinetic(N)
-V = Potential(N)
-BBC = BosonBosonCoupling
+class Solver:
+    """'General' solver, using a self-consistent field method.
 
+    Takes as argument a function that return a Hamiltonian given a Density.
 
-def solve_evp(H: Hamiltonian) -> tuple[float, WaveFunction]:
-    # this uses a Lanczos-like algorithm, so it gives us the k=1 smallest or largest eigenvalue
-    # TODO: How to ensure that we get the smallest?
-    λ, ψ = eigsh(Hamiltonian, k=1)
-    return λ, WaveFunction(ψ)
+    At every step, compute the lowest eigenpair of the Hamiltonian based on
+    the Density of the previous step.
+    """
 
+    d: float
+    grid: Grid
+    H: Callable[[Density], Hamiltonian]
+    ψ_prev: WaveFunction | None
 
-def update(ρ_in: Density) -> tuple[complex, Density]:
-    d = 0.01
-    Hₙ = Δ + V + BBC(ρ_in)
+    def __init__(self, H: Callable[[Density], Hamiltonian], grid: Grid, d: float):
+        self.grid = grid
+        self.H = H
+        self.d = d
+        self.ψ_prev = None
 
-    λ, ψ = solve_evp(Hₙ)
+    def solve(
+        self, delta_λ: float = 0.0001, delta_ρ: float = 0.0001, max_it: int = 200
+    ) -> tuple[float, WaveFunction]:
 
-    ρ_out = ψ.to_ρ()
+        λ_old, ρ_old = 0.0, Density(np.zeros(self.grid.N))
 
-    ρ_new = Density(ρ_in + d * (ρ_out - ρ_in))
+        for _ in range(max_it):
+            λ_new, ρ_new = self._update(ρ_old)
 
-    return λ, ρ_new
+            δρ = np.linalg.norm(ρ_old - ρ_new)
+            δλ = abs(λ_old - λ_new)
 
+            print(f"{_}:\t{λ_new=:.6f}\t({δλ=:.6f},\t{δρ=:.6f})")
 
-def iterate() -> tuple[complex, WaveFunction]:
-    delta_λ = 0.0001
-    delta_ρ = 0.0001
+            if δρ < delta_ρ and δλ < delta_λ:
+                return λ_new, self.ψ_prev  # type: ignore (ψ_prev is not None)
 
-    ρ_old = Density(np.zeros(N))
-    λ_old = complex(0)
-    for _ in range(1000):
-        λ_new, ρ_new = update(ρ_old)
-        if abs(ρ_old - ρ_new) < delta_ρ or abs(λ_old - λ_new) < delta_λ:
-            return solve_evp(Δ + V + BBC(ρ_new))
+            ρ_old, λ_old = ρ_new, λ_new
 
-    raise RuntimeError("Did not converge")
+        raise RuntimeError("Did not converge")
+
+    def _update(self, ρ_in: Density) -> tuple[float, Density]:
+        λ, ψ = self._smallest_eigenpair(self.H(ρ_in))
+
+        ρ_out = ψ.to_ρ()
+
+        ρ_new = Density.normalize(ρ_in + self.d * (ρ_out - ρ_in), self.grid.dx)
+
+        return λ, Density(ρ_new)
+
+    def _smallest_eigenpair(self, H: Hamiltonian) -> tuple[float, WaveFunction]:
+        """Return the smallest eigenvalue and its corresponding eigenvector."""
+        # which='LM' and sigma=0 gives us the smallest eigenvalue(s) as well, and
+        # is apparently "more stable". However also noticably slower
+        # λs, ψs = eigsh(H, k=1, which="LM", sigma=0, v0=self.ψ_prev)
+        λs, ψs = eigsh(H, k=1, which="SM", v0=self.ψ_prev)
+        self.ψ_prev = WaveFunction.normalize(ψs[:, 0], self.grid.dx)
+        return λs[0], self.ψ_prev
