@@ -32,6 +32,7 @@ def main():
     plt.plot(list(grid.iterator()), ψ.imag, label="ℑ(ψ)")
     plt.plot(list(grid.iterator()), ψ.to_ρ(), label="ρ")
     plt.legend()
+    plt.title("Ground state of GPE with V = x²")
     plt.show()
 
 
