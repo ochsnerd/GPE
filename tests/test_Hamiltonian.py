@@ -2,7 +2,7 @@ import numpy as np
 from scipy.sparse.linalg import eigsh
 from gpe.grid import Grid
 
-from gpe.hamiltonian import Hamiltonian, Kinetic
+from gpe.hamiltonian import Hamiltonian, Kinetic, Potential
 
 
 class M(Hamiltonian):
@@ -51,3 +51,12 @@ def testKinetic():
     λ, _ = eigsh(Kinetic(g), k=1, which="LM", sigma=0)
     # λ, _ = eigsh(Kinetic(g), k=1, which="SM")
     assert np.abs(λ[0] - 0.25 * (3 - np.sqrt(5))) < 1e-12
+
+
+def testPotential():
+    N = 1001
+    v = Potential(lambda x: 3 * x, Grid(4, N))
+
+    assert (v @ np.ones(N))[0] == -6  # type: ignore
+    assert (v @ np.ones(N))[N // 2] == 0  # type: ignore
+    assert (v @ np.ones(N))[N - 1] == 6  # type: ignore

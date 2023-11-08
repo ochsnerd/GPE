@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Callable
+
 import numpy as np
 
 from scipy.sparse import diags, dia_array
@@ -51,7 +53,21 @@ class Kinetic(Hamiltonian):
 
 
 class Potential(Hamiltonian):
-    pass
+    """Implement a time-independent potential of the form V(x).
+
+    The potential is applied element-wise in real space, i.e [Vψ](x) = V(x)ψ(x) = V(xᵢ)ψᵢ
+    """
+
+    V: np.ndarray
+
+    def __init__(self, V: Callable[[float], float], grid: Grid):
+        super().__init__(grid)
+        # precompute the potential at the gridpoints
+        # TODO: Implement iterator for Grid, so the listcomp is nicer
+        self.V = np.array([V(grid[i]) for i in range(grid.N)], dtype=float)
+
+    def _matvec(self, ψ: WaveFunction) -> WaveFunction:
+        return self.V * ψ
 
 
 class BosonBosonCoupling(Hamiltonian):
