@@ -71,5 +71,15 @@ class Potential(Hamiltonian):
 
 
 class BosonBosonCoupling(Hamiltonian):
-    def __init__(self, ρ: Density):
-        pass
+    """Implement the Boson-Boson coupling term 2C|ψ|² = 2Cρ"""
+
+    C: float
+    ρ: Density
+
+    def __init__(self, ρ: Density, C: float, grid: Grid):
+        super().__init__(grid)
+        self.C = C
+        self.ρ = ρ
+
+    def _matvec(self, ψ: WaveFunction) -> WaveFunction:
+        return 2 * self.C * self.ρ * ψ
