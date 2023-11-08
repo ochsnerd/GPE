@@ -15,10 +15,12 @@ class WaveFunction(np.ndarray):
         return np.asarray(input_array).view(cls)
 
     def to_ρ(self) -> Density:
-        return Density(np.multiply(self, np.conjugate(self)).real)
+        return Density((self * np.conjugate(self)).real)
 
-    # def normalize(self) -> None:
-    #     how to assign to self?
+    # TODO: npt.Ndarray can be generic on dtype or something
+    @staticmethod
+    def normalize(ψ: WaveFunction | np.ndarray, dx: float) -> WaveFunction:
+        return WaveFunction(ψ / (np.linalg.norm(ψ, ord=2) * np.sqrt(dx)))
 
 
 class Density(np.ndarray):
@@ -27,3 +29,7 @@ class Density(np.ndarray):
         assert len(input_array.shape) == 1
         assert input_array.dtype == float
         return np.asarray(input_array).view(cls)
+
+    @staticmethod
+    def normalize(ρ: Density | np.ndarray, dx: float) -> Density:
+        return Density(ρ / (np.linalg.norm(ρ, ord=1) * dx))
