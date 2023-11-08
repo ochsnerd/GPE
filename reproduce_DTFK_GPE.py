@@ -28,9 +28,9 @@ def main():
 
     # fix the phase
     ψ /= ψ[N // 2] / np.abs(ψ[N // 2])
-    plt.plot(ψ.real, label="ℜ(ψ)")
-    plt.plot(ψ.imag, label="ℑ(ψ)")
-    plt.plot(ψ.to_ρ(), label="ρ")
+    plt.plot(list(grid.iterator()), ψ.real, label="ℜ(ψ)")
+    plt.plot(list(grid.iterator()), ψ.imag, label="ℑ(ψ)")
+    plt.plot(list(grid.iterator()), ψ.to_ρ(), label="ρ")
     plt.legend()
     plt.show()
 

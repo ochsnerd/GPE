@@ -63,8 +63,7 @@ class Potential(Hamiltonian):
     def __init__(self, V: Callable[[float], float], grid: Grid):
         super().__init__(grid)
         # precompute the potential at the gridpoints
-        # TODO: Implement iterator for Grid, so the listcomp is nicer
-        self.V = np.array([V(grid[i]) for i in range(grid.N)], dtype=float)
+        self.V = np.array([V(x) for x in grid.iterator()], dtype=float)
 
     def _matvec(self, ψ: WaveFunction) -> WaveFunction:
         return self.V * ψ

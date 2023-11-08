@@ -1,3 +1,6 @@
+from typing import Generator
+
+
 class Grid:
     """Real space grid.
 
@@ -18,3 +21,6 @@ class Grid:
             raise TypeError
         assert 0 <= i < self.N
         return i * self.dx - self.a / 2
+
+    def iterator(self) -> Generator[float, None, None]:
+        return (self[i] for i in range(self.N))
