@@ -66,3 +66,14 @@ the boundary conditions).
 | $\bra{\psi}K\ket{\psi}$ | 0.2680410  |  0.2682057  |
 | $\bra{\psi}V\ket{\psi}$ | 0.4704457  |  0.4707475  |
 | $\bra{\psi}(2C\rho)\ket{\psi}$ | 0.8105828  | 0.4050836  |
+
+# Convergence
+
+See below the error of the resulting ground state energy of the GPE with parabolic potential (same as above), i.e. $|\lambda_{[N]} - \lambda_{ref}|$,
+where $\lambda_{[N]}$ is computed on a grid with $N$ points and $\lambda_{ref}$
+is the reference solution computed on grid with 1024 gridpoints.
+
+![convergence plot](figs/convergence.png "convergence plot")
+
+From the discretization error of the kinetic error we expect a convergence rate of $\mathcal{O}(N^{-2})$. The deviations of the observed error from this scaling can be attributed to the
+iterative eigensolver and the SCF procedure.
