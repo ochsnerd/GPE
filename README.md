@@ -77,3 +77,7 @@ is the reference solution computed on grid with 1024 gridpoints.
 
 From the discretization error of the kinetic error we expect a convergence rate of $\mathcal{O}(N^{-2})$. The deviations of the observed error from this scaling can be attributed to the
 iterative eigensolver and the SCF procedure.
+
+# Task 2: Two-Gaussian Potential
+
+TODO
