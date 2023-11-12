@@ -13,7 +13,9 @@ def main():
 
     grid = Grid(a, N)
     solver = GrossPitaevskiiSolver(potential=lambda x: x**2, C=1, grid=grid, d=0.1)
-    λ, ψ = solver.solve()
+    λs, ψs = solver.solve()
+    λ, ψ = λs[0], ψs[0]
+
     print(f"{λ=}")
     print(f"<ψ|K|ψ> = {solver.K.expectation(ψ)}")
     print(f"<ψ|V|ψ> = {solver.V.expectation(ψ)}")

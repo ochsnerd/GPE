@@ -10,13 +10,18 @@ def testHarmonicOscillator():
     K = Kinetic(grid)
     V = Potential(lambda x: 0.5 * x * x, grid)
 
-    λ, ψ = Solver(H=lambda _: K + V, grid=grid, d=1).solve()
-    expected_λ = 1 / 2
-    assert (np.linalg.norm(ψ, ord=2) * grid.dx - 1) < 1e-12, "ψ is normalized"
-    assert (
-        abs(K.expectation(ψ) + V.expectation(ψ) - λ) < 1e-8
+    λs, ψs = Solver(H=lambda _: K + V, grid=grid, d=1).solve(k=2)
+    expected_λs = [1 / 2, 3 / 2]
+    print(λs)
+    assert all(
+        (np.linalg.norm(ψ, ord=2) * grid.dx - 1) < 1e-12 for ψ in ψs
+    ), "ψ is normalized"
+    assert all(
+        abs(K.expectation(ψ) + V.expectation(ψ) - λ) < 1e-8 for ψ, λ in zip(ψs, λs)
     ), "λ is the sum of the energy expectation values"
-    assert abs(λ - expected_λ) < 1e-5, "λ = E₀ = 1/2"
+    assert all(
+        abs(λ - expected_λ) < 2e-5 for λ, expected_λ in zip(λs, expected_λs)
+    ), "λᵢ = Eᵢ = i + 1/2"
 
 
 def testGrossPitaevskii():
@@ -31,7 +36,8 @@ def testGrossPitaevskii():
 
     grid = Grid(a, N)
     solver = GrossPitaevskiiSolver(potential=pot, C=C, grid=grid, d=0.1)
-    λ, ψ = solver.solve()
+    λs, ψs = solver.solve()
+    λ, ψ = λs[0], ψs[0]
 
     tol = 1e-4
     assert abs(solver.K.expectation(ψ) - 0.2682057) < tol

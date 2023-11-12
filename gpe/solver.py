@@ -18,18 +18,25 @@ class Solver:
 
     d: float
     grid: Grid
-    H: Callable[[Density], Hamiltonian]
-    ψ_prev: WaveFunction | None
+    compute_H: Callable[[Density], Hamiltonian]
+    H: Hamiltonian | None
+    # TODO: npt.Ndarray
+    ψ_prev: np.ndarray | None  # starting point for eigensolver
 
     def __init__(self, H: Callable[[Density], Hamiltonian], grid: Grid, d: float):
         self.grid = grid
-        self.H = H
+        self.compute_H = H
         self.d = d
+        self.H = None
         self.ψ_prev = None
 
     def solve(
-        self, delta_λ: float = 0.0001, delta_ρ: float = 0.0001, max_it: int = 200
-    ) -> tuple[float, WaveFunction]:
+        self,
+        k: int = 1,
+        delta_λ: float = 0.0001,
+        delta_ρ: float = 0.0001,
+        max_it: int = 200,
+    ) -> tuple[list[float], list[WaveFunction]]:
 
         λ_old, ρ_old = 0.0, Density(np.zeros(self.grid.N))
 
@@ -42,14 +49,16 @@ class Solver:
             print(f"{_}:\t{λ_new=:.6f}\t({δλ=:.6f},\t{δρ=:.6f})")
 
             if δρ < delta_ρ and δλ < delta_λ:
-                return λ_new, self.ψ_prev  # type: ignore (ψ_prev is not None)
+                return self._smallest_eigenpair(self.H, k=k)  # type: ignore (self.H is not None)
 
             ρ_old, λ_old = ρ_new, λ_new
 
         raise RuntimeError("Did not converge")
 
     def _update(self, ρ_in: Density) -> tuple[float, Density]:
-        λ, ψ = self._smallest_eigenpair(self.H(ρ_in))
+        self.H = self.compute_H(ρ_in)
+        λs, ψs = self._smallest_eigenpair(self.H)
+        λ, ψ = λs[0], ψs[0]
 
         ρ_out = ψ.to_ρ()
 
@@ -57,14 +66,18 @@ class Solver:
 
         return λ, Density(ρ_new)
 
-    def _smallest_eigenpair(self, H: Hamiltonian) -> tuple[float, WaveFunction]:
+    def _smallest_eigenpair(
+        self, H: Hamiltonian, k: int = 1
+    ) -> tuple[list[float], list[WaveFunction]]:
         """Return the smallest eigenvalue and its corresponding eigenvector."""
         # which='LM' and sigma=0 gives us the smallest eigenvalue(s) as well, and
         # is apparently "more stable". However also noticably slower
         # λs, ψs = eigsh(H, k=1, which="LM", sigma=0, v0=self.ψ_prev)
-        λs, ψs = eigsh(H, k=1, which="SM", v0=self.ψ_prev)
-        self.ψ_prev = WaveFunction.normalize(ψs[:, 0], self.grid.dx)
-        return λs[0], self.ψ_prev
+        λs, ψs = eigsh(H, k=k, which="SM", v0=self.ψ_prev)
+        self.ψ_prev = ψs[:, 0]
+        return list(λs), [
+            WaveFunction.normalize(ψs[:, i], self.grid.dx) for i in range(k)
+        ]
 
 
 class GrossPitaevskiiSolver(Solver):

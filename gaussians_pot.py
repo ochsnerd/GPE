@@ -55,15 +55,18 @@ def main():
     )
 
     solver = GrossPitaevskiiSolver(potential=V, C=1, grid=grid, d=0.1)
-    λ, ψ = solver.solve()
+    λs, ψs = solver.solve(k=5)
 
     xs = list(grid.iterator())
-    ψ /= ψ[grid.N // 2] / np.abs(ψ[grid.N // 2])
-    plt.plot(xs, ψ.real, label="ℜ(ψ)")
-    plt.plot(xs, ψ.imag, label="ℑ(ψ)")
-    plt.plot(xs, ψ.to_ρ(), label="ρ")
+
+    for i, (λ, ψ) in enumerate(zip(λs, ψs)):
+        ψ /= ψ[grid.N // 2] / np.abs(ψ[grid.N // 2])
+        # plt.plot(xs, ψ.real, label="ℜ(ψ_)")
+        # plt.plot(xs, ψ.imag, label="ℑ(ψ)")
+        plt.plot(xs, ψ.to_ρ(), label=f"$ρ_{{{i}}}$")
+
     Vs = [V(x) for x in xs]
-    V_max, ψ_max = max(Vs), max(ψ.real)
+    V_max, ψ_max = max(Vs), max(ψs[-1].real)
     plt.plot(xs, [Vi / V_max * ψ_max for Vi in Vs], color="grey", label="V(x)")
     plt.legend(loc="upper right")
     plt.title("Ground state of GPE")
