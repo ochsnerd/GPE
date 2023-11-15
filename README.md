@@ -81,3 +81,48 @@ iterative eigensolver and the SCF procedure.
 # Task 2: Two-Gaussian Potential
 
 TODO
+
+# Task 3:
+
+TODO: ABS WAS NECESSARY
+Solve the optimization problem $$\min_{L, L^\prime, \alpha, \alpha^\prime, R, R^\prime \in \mathbb{R}} \lvert 10(\lambda_2 - \lambda_1) - (\lambda_3 - \lambda_2) \rvert,$$
+where we obtain $\lambda_1, \lambda_2, \lambda_3$ by solving the GPE with Hamiltonian parameters $L, L^\prime, \alpha, \alpha^\prime, R$ and $R^\prime$.
+Taking the hint into account reduces the dimensionality of the problem from 6 to 1.
+Probably the search-space can be restricted somewhat due to the parabolic potential term invalidating Gaussians with large $R$ (as long as $\alpha$ is not too big).
+
+- Nelder-Mead (derivative-free general purpose optimization)
+- Simulated annealing (derivative-free general purpose optimization)
+- Stochastic gradient descent
+  - stochastic because the problem will not have a unique minimum
+  - we don't have the derivative readily available, and computing it via discretization is very costly
+
+``` python
+from gaussians_pot import Potential
+
+def f(L1: float, L2: float, α1: float, α2: float, R1: float, R2: float) -> float:
+    V = Potential(
+        β=1 / 10,
+        α1=α1,
+        α2=α2,
+        L1=L1,
+        L2=L2,
+        R1=R1,
+        R2=R2,
+    )
+
+    grid = Grid(
+        a=15,  # make sure this is large enough to prevent boundary effects
+        N=101,
+    )
+    
+    (λ1, λ2, λ3), _ = GrossPitaevksiiSolver(potential=V, C=1, grid=grid).solve(k=3)
+    
+    return abs(10 * (λ2 - λ1) - (λ3 - λ2))
+
+
+some_solver.minimize(f)
+```
+
+I expect the code as it is (in python) to be too slow for such an approach.
+
+(Funninly enough, because of my error where the boson-boson coupling contribution to the energy is too large, the solution with the standard parameters is already really close to the 1:10 ratio.)
