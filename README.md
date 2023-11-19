@@ -1,4 +1,10 @@
-Solving https://matmat.org/jobs/problem/
+# Problem
+
+The Gross-Pitaevskii equation in 1D reads
+
+$$H\psi = \left( -\frac{1}{2} \Delta + V + 2C \lvert \psi \rvert^2 \right) \psi = \lambda \psi \quad \Vert\psi\Vert_{L2} = 1.$$
+
+This repo attempts to solve the problems stated in https://matmat.org/jobs/problem/.
 
 # Setup
 
