@@ -86,7 +86,49 @@ iterative eigensolver and the SCF procedure.
 
 # Task 2: Two-Gaussian Potential
 
-TODO
+`python3.12 gaussian_pot.py` computes the solution to the GPE with the two-gaussian potential given in the problem description. The following discussion assumes the setting given in the problem statement
+($C=1, \beta=1/10, L=L^\prime=1, \alpha=\alpha^\prime=5, R=R^\prime=3)$.
+
+The total potential looks like this:
+
+![total potential plot](figs/total_potential.png "total potential plot")
+
+The lowest energies are as follows:
+
+```
+λ1:
+	λ1 = -0.2624610991767509
+	<ψ|K|ψ> = 0.1459762191927695
+	<ψ|V|ψ> = -0.7284081213446412
+	<ψ|BBC|ψ> = 0.31997080297512076
+λ2:
+	λ2 = -0.22460667828721137
+	<ψ|K|ψ> = 0.23785684748793545
+	<ψ|V|ψ> = -0.8068677364564136
+	<ψ|BBC|ψ> = 0.34440421068126753
+λ3:
+	λ3 = 0.28564534384344503
+	<ψ|K|ψ> = 0.40131566036432037
+	<ψ|V|ψ> = -0.28315851422732813
+	<ψ|BBC|ψ> = 0.16748819770645612
+λ4:
+	λ4 = 0.6724420668953223
+	<ψ|K|ψ> = 0.7980588638020367
+	<ψ|V|ψ> = -0.3272687209904828
+	<ψ|BBC|ψ> = 0.2016519240837733
+λ5:
+	λ5 = 1.1496357542577598
+	<ψ|K|ψ> = 1.1519325318907396
+	<ψ|V|ψ> = -0.1907683744487604
+	<ψ|BBC|ψ> = 0.18847159681578338
+```
+
+(note that these overstate the boson-boson couling by a factor of two)
+
+The ground states are:
+
+![ground states](figs/eigenstates.png "ground states")
+
 
 # Task 3:
 
