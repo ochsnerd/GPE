@@ -51,25 +51,41 @@ def main():
 
     grid = Grid(
         a=15,
-        N=151,
+        N=101,
     )
 
-    solver = GrossPitaevskiiSolver(potential=V, C=1, grid=grid, d=0.1)
-    λs, ψs = solver.solve(k=5)
+    solver = GrossPitaevskiiSolver(potential=V, C=1, grid=grid, d=0.05)
+    λs, ψs = solver.solve(k=5, max_it=500)
+
+    # energies
+    for i, (λ, ψ) in enumerate(zip(λs, ψs)):
+        print(f"λ{i+1}:")
+        print(f"\tλ{i+1} = {λ}")
+        print(f"\t<ψ|K|ψ> = {solver.K.expectation(ψ)}")
+        print(f"\t<ψ|V|ψ> = {solver.V.expectation(ψ)}")
+        print(f"\t<ψ|BBC|ψ> = {solver.BBC.expectation(ψ)}")
 
     xs = list(grid.iterator())
 
+    # total potential
+    Vs = [V(x) for x in xs]
+    bbc = solver.BBC
+    plt.plot(xs, Vs, color="grey", label="$V$")
+    plt.plot(
+        xs, [Vi + 2 * bbc.C * ρi for Vi, ρi in zip(Vs, bbc.ρ)], label=r"$V + 2C\rho$"
+    )
+    plt.legend(loc="lower right")
+    plt.title(r"Total potential $V + 2C\rho$")
+    plt.show()
+
+    # densities
     for i, (λ, ψ) in enumerate(zip(λs, ψs)):
-        ψ /= ψ[grid.N // 2] / np.abs(ψ[grid.N // 2])
-        # plt.plot(xs, ψ.real, label="ℜ(ψ_)")
-        # plt.plot(xs, ψ.imag, label="ℑ(ψ)")
         plt.plot(xs, ψ.to_ρ(), label=f"$ρ_{{{i}}}$")
 
-    Vs = [V(x) for x in xs]
-    V_max, ψ_max = max(Vs), max(ψs[-1].real)
-    plt.plot(xs, [Vi / V_max * ψ_max for Vi in Vs], color="grey", label="V(x)")
-    plt.legend(loc="upper right")
-    plt.title("Ground state of GPE")
+    V_max, ψ_max = max(Vs), max(max(ψ.to_ρ()) for ψ in ψs)
+    plt.plot(xs, [Vi / V_max * ψ_max for Vi in Vs], color="grey", label=r"$\propto V$")
+    plt.legend(loc="lower right")
+    plt.title("Lowest eigenstates of GPE")
     plt.show()
 
 
