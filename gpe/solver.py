@@ -70,10 +70,7 @@ class Solver:
         self, H: Hamiltonian, k: int = 1
     ) -> tuple[list[float], list[WaveFunction]]:
         """Return the smallest eigenvalue and its corresponding eigenvector."""
-        # which='LM' and sigma=0 gives us the smallest eigenvalue(s) as well, and
-        # is apparently "more stable". However also noticably slower
-        # λs, ψs = eigsh(H, k=1, which="LM", sigma=0, v0=self.ψ_prev)
-        λs, ψs = eigsh(H, k=k, which="SM", v0=self.ψ_prev)
+        λs, ψs = eigsh(H, k=k, which="SA", v0=self.ψ_prev)
         self.ψ_prev = ψs[:, 0]
         return list(λs), [
             WaveFunction.normalize(ψs[:, i], self.grid.dx) for i in range(k)
