@@ -132,17 +132,18 @@ The ground states are:
 
 # Task 3:
 
-TODO: ABS WAS NECESSARY
-Solve the optimization problem $$\min_{L, L^\prime, \alpha, \alpha^\prime, R, R^\prime \in \mathbb{R}} \lvert 10(\lambda_2 - \lambda_1) - (\lambda_3 - \lambda_2) \rvert,$$
+Solve the optimization problem $$\min_{L, L^\prime, \alpha, \alpha^\prime, R, R^\prime \in \mathbb{R}} \lvert 10\lvert\lambda_2 - \lambda_1\rvert - \lvert\lambda_3 - \lambda_2\rvert \rvert,$$
 where we obtain $\lambda_1, \lambda_2, \lambda_3$ by solving the GPE with Hamiltonian parameters $L, L^\prime, \alpha, \alpha^\prime, R$ and $R^\prime$.
 Taking the hint into account reduces the dimensionality of the problem from 6 to 1.
 Probably the search-space can be restricted somewhat due to the parabolic potential term invalidating Gaussians with large $R$ (as long as $\alpha$ is not too big).
 
 - Nelder-Mead (derivative-free general purpose optimization)
 - Simulated annealing (derivative-free general purpose optimization)
+  TODO: explain more
 - Stochastic gradient descent
   - stochastic because the problem will not have a unique minimum
   - we don't have the derivative readily available, and computing it via discretization is very costly
+- TODO: can this be formulated as a Bayesian inverse problem? Would this differ on an implementation level from simulated annealing
 
 ``` python
 from gaussians_pot import Potential
@@ -165,7 +166,7 @@ def f(L1: float, L2: float, α1: float, α2: float, R1: float, R2: float) -> flo
     
     (λ1, λ2, λ3), _ = GrossPitaevksiiSolver(potential=V, C=1, grid=grid).solve(k=3)
     
-    return abs(10 * (λ2 - λ1) - (λ3 - λ2))
+    return abs(10 * abs(λ2 - λ1) - abs(λ3 - λ2))
 
 
 some_solver.minimize(f)
