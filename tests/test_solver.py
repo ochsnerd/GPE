@@ -36,7 +36,7 @@ def testGrossPitaevskii():
 
     grid = Grid(a, N)
     solver = GrossPitaevskiiSolver(potential=pot, C=C, grid=grid, d=0.1)
-    λs, ψs = solver.solve()
+    λs, ψs = solver.solve(delta_λ=1e-5)
     λ, ψ = λs[0], ψs[0]
 
     tol = 1e-4

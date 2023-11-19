@@ -48,7 +48,7 @@ class Solver:
 
             print(f"{_}:\t{λ_new=:.6f}\t({δλ=:.6f},\t{δρ=:.6f})")
 
-            if δρ < delta_ρ and δλ < delta_λ:
+            if δρ < delta_ρ or δλ < delta_λ:
                 return self._smallest_eigenpair(self.H, k=k)  # type: ignore (self.H is not None)
 
             ρ_old, λ_old = ρ_new, λ_new
